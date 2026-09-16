@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ЛогоПульс — платформа логопеда</title>
+<meta name="description" content="ЛогоПульс — рабочая платформа логопеда: приём заявок, ученики, расписание, журнал занятий, прогресс речи, оплаты и отчёты.">
+<meta name="theme-color" content="#05060e">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ЛогоПульс">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+
+<!-- ══ Фоновые слои ══ -->
+<div class="bg-stack" aria-hidden="true">
+  <div class="bg-grid"></div>
+  <div class="bg-aurora a1"></div>
+  <div class="bg-aurora a2"></div>
+  <div class="bg-aurora a3"></div>
+  <div class="bg-scan"></div>
+  <div class="bg-vignette"></div>
+</div>
+
+<div class="boot" id="boot">
+  <div class="boot__core"><span></span><span></span><span></span></div>
+  <div class="boot__title">ЛОГОПУЛЬС</div>
+  <div class="boot__sub">инициализация рабочего пространства…</div>
+</div>
+
+<div class="app" id="app" hidden>
+
+  <!-- ══ Боковое меню ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <div class="brand__mark">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="bm" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#22d3ee"/><stop offset="0.5" stop-color="#a855f7"/><stop offset="1" stop-color="#f472b6"/>
+            </linearGradient>
+          </defs>
+          <path d="M4 24h6l4-11 6 22 5-16 4 9h15" fill="none" stroke="url(#bm)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand__text">
+        <b>ЛогоПульс</b>
+        <span>платформа логопеда</span>
+      </div>
+      <button class="sidebar__collapse" id="sidebarCollapse" title="Свернуть меню" aria-label="Свернуть меню">
+        <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <nav class="nav" id="nav" aria-label="Основная навигация"></nav>
+
+    <div class="sidebar__foot">
+      <div class="statcard" id="sideStat"></div>
+      <button class="btn btn--ghost btn--block" data-open-help>
+        <svg viewBox="0 0 24 24" class="ic"><path d="M12 17h.01M9.5 9a2.5 2.5 0 114 2c-.9.7-1.5 1.3-1.5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+        Помощь и обучение
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══ Верхняя панель ══ -->
+  <header class="topbar">
+    <button class="icon-btn topbar__burger" id="burger" aria-label="Меню">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="topbar__title">
+      <span class="kicker" id="topKicker">раздел</span>
+      <h1 id="topTitle">Пульс дня</h1>
+    </div>
+
+    <div class="search" id="searchBox">
+      <svg viewBox="0 0 24 24" class="ic"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" id="globalSearch" placeholder="Поиск ученика, родителя, телефона…" autocomplete="off" aria-label="Глобальный поиск">
+      <kbd>/</kbd>
+      <div class="search__results" id="searchResults" hidden></div>
+    </div>
+
+    <div class="topbar__actions">
+      <button class="icon-btn topbar__search-btn" id="searchBtn" title="Поиск" aria-label="Поиск">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="themeToggle" title="Светлая / тёмная тема" aria-label="Переключить тему">
+        <svg viewBox="0 0 24 24" class="ic-moon"><path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg viewBox="0 0 24 24" class="ic-sun"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="bellBtn" title="Требуют внимания" aria-label="Уведомления">
+        <svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 1112 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 18.5a2 2 0 004 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span class="dot" id="bellDot" hidden></span>
+      </button>
+      <button class="btn btn--primary" id="quickAdd">
+        <svg viewBox="0 0 24 24" class="ic"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span>Создать</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ Рабочая область ══ -->
+  <main class="view" id="view" tabindex="-1"></main>
+
+  <footer class="appfoot">
+    <span class="appfoot__sig">ЛогоПульс</span>
+    <span id="footStamp"></span>
+    <span class="appfoot__hint">Все данные хранятся в вашем браузере · <button class="linklike" data-open-settings>резервная копия</button></span>
+  </footer>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="modal-root" id="modalRoot"></div>
+
+<script src="js/core.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/views/dashboard.js"></script>
+<script src="js/views/students.js"></script>
+<script src="js/views/pipeline.js"></script>
+<script src="js/views/schedule.js"></script>
+<script src="js/views/journal.js"></script>
+<script src="js/views/progress.js"></script>
+<script src="js/views/finance.js"></script>
+<script src="js/views/reports.js"></script>
+<script src="js/views/settings.js"></script>
+<script src="js/forms.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
