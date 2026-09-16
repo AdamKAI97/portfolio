@@ -1,0 +1,11 @@
+{
+  "name": "finbot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Личный финансовый бот: Telegram Mini App, админ-панель и API",
+  "type": "module",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "dev": "node dev.mjs"
+  }
+}

@@ -12,6 +12,24 @@ Loyiha uch qismdan iborat va to'liq kompyuteringizda (localhost) ishlaydi:
 | Mini App | `miniapp/` | Telegram ichidagi React ilova |
 | Admin panel | `admin/` | Brauzerdagi React panel: amaliyotlar jadvali, kategoriyalar, foydalanuvchilar |
 
+
+---
+
+## 🚀 Tezkor start — ikkita buyruq
+
+```bash
+cd finbot
+
+node setup.mjs     # Neon satri va bot tokenini so'raydi, hammasini o'rnatadi va jadvallarni yaratadi
+node dev.mjs       # bot, Mini App va admin panelni bitta oynada ishga tushiradi
+```
+
+`dev.mjs` ngrok'ni o'zi kuzatadi: boshqa oynada `ngrok http 5173` ni ishga tushirsangiz,
+https-manzil avtomatik `.env` ga yoziladi va bot qayta ishga tushadi — faqat o'sha manzilni
+BotFather'ga bir marta kiritish qoladi. To'xtatish — `Ctrl+C`.
+
+Quyida — o'sha sozlash qadamma-qadam, qo'lda.
+
 ---
 
 ## 📋 Tayyorgarlik (15 daqiqa)
