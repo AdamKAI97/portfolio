@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TxType {
+  INCOME
+  EXPENSE
+}
+
+enum DebtDirection {
+  I_OWE
+  THEY_OWE
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  telegramId        String    @unique
+  firstName         String
+  lastName          String?
+  username          String?
+  phone             String?
+  language          String    @default("ru")
+  currency          String    @default("UZS")
+  timezone          String    @default("Asia/Tashkent")
+
+  onboarded         Boolean   @default(false)
+  reminderEnabled   Boolean   @default(true)
+  reminderTime      String    @default("21:00")
+  weeklyReport      Boolean   @default(true)
+
+  monthlyIncomePlan Float     @default(0)
+  savingsRate       Int       @default(10)
+  roundUpEnabled    Boolean   @default(false)
+  roundUpStep       Int       @default(1000)
+
+  streakCount       Int       @default(0)
+  bestStreak        Int       @default(0)
+  lastEntryDate     DateTime?
+  noSpendDays       Int       @default(0)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  categories        Category[]
+  transactions      Transaction[]
+  budgets           Budget[]
+  goals             Goal[]
+  debts             Debt[]
+  recurrings        Recurring[]
+  reminders         ReminderLog[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  key       String
+  nameRu    String
+  nameUz    String
+  emoji     String   @default("💸")
+  color     String   @default("#898781")
+  type      TxType
+  keywords  String   @default("")
+  isDefault Boolean  @default(false)
+  sort      Int      @default(0)
+
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions Transaction[]
+  budgets      Budget[]
+  recurrings   Recurring[]
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  type       TxType
+  amount     Float
+  note       String?
+  date       DateTime @default(now())
+  source     String   @default("bot")
+  createdAt  DateTime @default(now())
+
+  @@index([userId, date])
+  @@index([userId, type])
+}
+
+model Budget {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount     Float
+  month      String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, categoryId, month])
+  @@index([userId, month])
+}
+
+model Goal {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  emoji         String    @default("🎯")
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  deadline      DateTime?
+  isDone        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Debt {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  person    String
+  amount    Float
+  direction DebtDirection
+  dueDate   DateTime?
+  isSettled Boolean       @default(false)
+  note      String?
+  createdAt DateTime      @default(now())
+
+  @@index([userId])
+}
+
+model Recurring {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  title      String
+  amount     Float
+  type       TxType   @default(EXPENSE)
+  dayOfMonth Int      @default(1)
+  isActive   Boolean  @default(true)
+  lastNotified String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ReminderLog {
+  id     Int      @id @default(autoincrement())
+  userId Int
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind   String
+  key    String
+  sentAt DateTime @default(now())
+
+  @@unique([userId, kind, key])
+}
