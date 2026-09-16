@@ -251,12 +251,65 @@ const ui = {
       ta.select(); try { document.execCommand('copy'); done(); } catch(e){} ta.remove();
     }
   },
+  /* страница открыта внутри рамки (например, опубликованная версия) —
+     там браузер запрещает скачивание файлов со страницы */
+  framed(){
+    try { return window.self !== window.top; } catch(e){ return true; }
+  },
+
   download(name, text, type){
-    const blob = new Blob([text], { type: type || 'application/json;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = name;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+    if (ui.framed()) return ui.textFallback(name, text);
+    try {
+      const blob = new Blob([text], { type: type || 'application/json;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+    } catch(e){ ui.textFallback(name, text); }
+  },
+
+  /* запасной путь: показать содержимое, чтобы скопировать и вставить в файл */
+  textFallback(name, text){
+    const h = ui.modal({
+      wide: true, icon:'copy', kicker:'файл не скачать из этого окна',
+      title:'Скопируйте содержимое',
+      body:'<p class="muted" style="font-size:13.5px">Браузер не разрешает странице сохранять файлы напрямую. '
+        + 'Нажмите «Скопировать всё», затем вставьте текст в любой текстовый редактор и сохраните под именем '
+        + '<b>' + u.esc(name) + '</b>.</p>'
+        + '<textarea class="textarea mono" id="lpDump" readonly spellcheck="false" '
+        + 'style="min-height:240px;font-size:11.5px;line-height:1.45">' + u.esc(text) + '</textarea>',
+      foot:'<button class="btn btn--ghost" data-close>Закрыть</button>'
+         + '<button class="btn btn--primary" data-copy-all>' + ui.icon('copy') + ' Скопировать всё</button>'
+    });
+    h.el.addEventListener('click', e => {
+      if (e.target.closest('[data-copy-all]')){
+        const ta = LP.$('#lpDump', h.el);
+        ta.focus(); ta.select();
+        ui.copy(text);
+      }
+    });
+    return h;
+  },
+
+  /* обратная операция: вставить текст копии и восстановить данные */
+  textRestore(onText){
+    const h = ui.modal({
+      wide: true, icon:'upload', kicker:'из текста', title:'Восстановить из копии',
+      body:'<p class="muted" style="font-size:13.5px">Вставьте сюда содержимое файла резервной копии '
+        + '(его можно открыть любым текстовым редактором) и нажмите «Восстановить».</p>'
+        + '<textarea class="textarea mono" id="lpPaste" spellcheck="false" placeholder=\'{ "version": 1, …\' '
+        + 'style="min-height:240px;font-size:11.5px;line-height:1.45"></textarea>',
+      foot:'<button class="btn btn--ghost" data-close>Отмена</button>'
+         + '<button class="btn btn--primary" data-restore>' + ui.icon('check') + ' Восстановить</button>'
+    });
+    h.el.addEventListener('click', e => {
+      if (e.target.closest('[data-restore]')){
+        const val = LP.$('#lpPaste', h.el).value.trim();
+        if (!val) return ui.toast('Пусто', 'Вставьте содержимое копии', 'warn');
+        if (onText(val)) h.close();
+      }
+    });
+    return h;
   }
 };
 

@@ -87,10 +87,12 @@ LP.views.settings = {
       + '<div class="hintbar" style="margin-bottom:14px">' + ui.icon('info')
         + '<div>Платформа работает <b>полностью в вашем браузере</b> — данные не уходят в интернет и никому не видны. '
         + 'Обратная сторона: если очистить историю браузера или сменить устройство, данные пропадут. '
-        + 'Поэтому <b>раз в неделю делайте резервную копию</b> — это один файл.</div></div>'
+        + 'Поэтому <b>раз в неделю делайте резервную копию</b> и храните её в облаке или в переписке с собой.</div></div>'
       + '<div class="row row--wrap">'
-        + '<button class="btn btn--primary" data-act="backup">' + ui.icon('download') + ' Скачать резервную копию</button>'
-        + '<button class="btn" data-act="restore">' + ui.icon('upload') + ' Восстановить из файла</button>'
+        + '<button class="btn btn--primary" data-act="backup">' + ui.icon('download') + ' '
+          + (ui.framed() ? 'Показать копию для сохранения' : 'Скачать резервную копию') + '</button>'
+        + (ui.framed() ? '' : '<button class="btn" data-act="restore">' + ui.icon('upload') + ' Восстановить из файла</button>')
+        + '<button class="btn" data-act="restore-text">' + ui.icon('copy') + ' Восстановить из текста</button>'
         + '<button class="btn" data-act="demo">' + ui.icon('spark') + ' Загрузить демо-кабинет</button>'
         + '<button class="btn btn--danger" data-act="wipe">' + ui.icon('trash') + ' Очистить всё</button>'
       + '</div>'
@@ -155,6 +157,19 @@ LP.views.settings = {
         ui.toast('Копия сохранена', 'Файл в папке «Загрузки». Храните его в облаке.', 'ok', 5000);
       }
       if (act === 'restore') LP.$('#lpRestore', root).click();
+      if (act === 'restore-text'){
+        ui.textRestore(text => {
+          try {
+            S.importJSON(text);
+            LP.app.render();
+            ui.toast('Данные восстановлены', 'Учеников: ' + S.db.students.length, 'ok', 4000);
+            return true;
+          } catch(err){
+            ui.toast('Не получилось', err.message || 'Текст повреждён или это не копия ЛогоПульса', 'err', 5000);
+            return false;
+          }
+        });
+      }
       if (act === 'demo'){
         const ok = await ui.confirm({ danger:true, title:'Загрузить демо-кабинет?',
           html:'Текущие данные будут <b>полностью заменены</b> вымышленным примером с 13 детьми. Сначала сделайте резервную копию.',

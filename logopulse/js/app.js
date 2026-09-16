@@ -197,6 +197,7 @@ const app = {
   start(){
     const had = S.load();
     if (!had) S.db.settings.onboarded = false;
+    document.documentElement.lang = 'ru';
     app.theme(S.db.settings.theme === 'light' ? 'light' : 'dark');
     app.buildNav();
 
