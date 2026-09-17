@@ -81,13 +81,19 @@
 
 ### 3.2. Рабочая ветка
 
-1. **Settings** → **Git** (слева)
-2. Найдите поле **Production Branch**
-3. Впишите:
-   ```
-   claude/speech-therapy-practice-platform-gnqgnc
-   ```
-4. Нажмите **Save**
+Это поле в разных версиях интерфейса Vercel лежит в разных местах. Проверьте по порядку:
+
+**Вариант А.** **Settings** → **Git** → блок **Production Branch**
+— он находится в верхней части страницы, выше блоков «Git LFS» и «Deploy Hooks».
+
+**Вариант Б.** **Settings** → **Environments** → **Production** → блок **Branch Tracking**
+(в новом интерфейсе настройка переехала сюда).
+
+В найденное поле впишите:
+```
+claude/speech-therapy-practice-platform-gnqgnc
+```
+и нажмите **Save**.
 
 ### 3.3. Пересоберите
 
@@ -190,6 +196,7 @@ https://ВАШ-АДРЕС.vercel.app/api/cron?token=ВАШ_ADMIN_TOKEN
 | `404: NOT_FOUND` при открытии сайта | Не указан **Root Directory = finbot** или не выбрана ветка — шаг 3 |
 | В списке папок нет `finbot` | Так и должно быть — нажмите Cancel и впишите папку вручную в Settings → Build and Deployment (шаг 3.1) |
 | Не нахожу поле **Root Directory** | Оно в **Settings → Build and Deployment**, а не в General |
+| Не нахожу **Production Branch** | Либо вверху страницы **Settings → Git**, либо в **Settings → Environments → Production → Branch Tracking** |
 | Открывается старый сайт-портфолио | Root Directory ещё `/` — шаг 3.1, затем Redeploy |
 | Страница `/api/setup` пишет «Неверный пароль» | `token` в ссылке не совпадает с `ADMIN_TOKEN` в переменных Vercel |
 | Бот не отвечает | Откройте `/api/setup?token=…` ещё раз; проверьте, что `BOT_TOKEN` вписан без пробелов |
