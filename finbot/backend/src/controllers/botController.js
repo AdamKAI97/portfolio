@@ -71,7 +71,7 @@ export async function openApp(ctx) {
   if (keyboard) {
     await ctx.reply(t(user.language, 'app.text'), keyboard);
   } else {
-    await ctx.reply(`${t(user.language, 'app.text')}\n\n${config.bot.webAppUrl}`);
+    await ctx.reply(t(user.language, 'app.localOnly', { url: config.bot.webAppUrl }));
   }
 }
 

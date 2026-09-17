@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import config, { assertConfig } from './config/default.js';
-import { connectDatabase, disconnectDatabase } from './database/connection.js';
+import prisma, { connectDatabase, disconnectDatabase } from './database/connection.js';
+import { ensureDefaultCategories } from './database/categories.js';
 import bot, { setupBotProfile } from './core/bot.js';
 import registerBotRoutes from './routes/bot.routes.js';
 import clientRoutes from './routes/client.routes.js';
@@ -27,6 +28,13 @@ app.use(errorHandler);
 
 async function main() {
   await connectDatabase();
+
+  // Без категорий бот не сможет записать операцию — восстанавливаем, если их нет
+  const seeded = await ensureDefaultCategories(prisma);
+  if (seeded.created) {
+    console.log(`🌱 Категории созданы: ${seeded.expense} расходов, ${seeded.income} доходов`);
+  }
+
   registerBotRoutes();
 
   app.listen(config.port, () => {

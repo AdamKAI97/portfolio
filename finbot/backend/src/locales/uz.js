@@ -188,6 +188,12 @@ Xarajat va daromadlarni yozing, shunda oy sezdirmay «oqib ketmaydi».`,
 
   app: {
     open: `📱 Ilovani ochish`,
-    text: `Ilovada — grafiklar, tarix, maqsadlar va byudjetlar.`
+    text: `Ilovada — grafiklar, tarix, maqsadlar va byudjetlar.`,
+    localOnly: ({ url }) => `📱 Ilova ishlayapti, lekin hozircha faqat kompyuteringizdagi brauzerda:
+
+${url}
+
+To'g'ridan-to'g'ri Telegram ichida ochilishi uchun https manzil kerak — uni ngrok beradi.
+Yo'riqnoma: START.md fayli, 6-qadam. Manzil avtomatik yoziladi, uni @BotFather ga kiritish qoladi.`
   }
 };
