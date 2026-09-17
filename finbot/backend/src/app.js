@@ -66,14 +66,27 @@ export function createApp() {
   );
 
   /* ------------------------ Telegram: приём сообщений --------------------- */
-  app.post(`/api/bot/${webhookPath()}`, async (req, res) => {
+  // Путь сверяем внутри обработчика, а не в маршруте: так приём сообщений
+  // не зависит от того, как именно хостинг передаёт адрес запроса.
+  const handleTelegram = async (req, res) => {
+    const secret = String(req.params?.secret || req.params?.[0] || '');
+
+    if (secret && secret !== webhookPath()) {
+      return res.status(404).json({ error: 'not_found' });
+    }
+
     try {
       await bot.handleUpdate(req.body);
     } catch (error) {
       console.error('Ошибка обработки обновления Telegram:', error.message);
     }
-    res.status(200).end();
-  });
+
+    // Telegram всегда должен получить 200, иначе будет присылать это же сообщение снова
+    return res.status(200).end();
+  };
+
+  app.post('/api/bot/:secret', handleTelegram);
+  app.post('/api/telegram', handleTelegram);
 
   /* ---------------------------- Напоминания ------------------------------- */
   app.all('/api/cron', async (req, res) => {
@@ -185,7 +198,30 @@ export function createApp() {
       advice.push('BOT_TOKEN неверный или отозван. Возьмите новый у @BotFather и обновите переменную.');
     }
 
-    // 5. Вебхук — главное место, где всё обычно ломается
+    // 5. Живая проверка самого адреса приёма сообщений
+    try {
+      const probe = await fetch(expectedWebhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ update_id: 0 }),
+        signal: AbortSignal.timeout(10000)
+      });
+
+      if (probe.ok) {
+        rows.push(row(true, 'Адрес приёма сообщений', `отвечает (${probe.status})`));
+      } else {
+        rows.push(row(false, 'Адрес приёма сообщений', `отвечает ошибкой ${probe.status}`));
+        advice.push(
+          probe.status === 404
+            ? 'Адрес приёма сообщений не найден. Проверьте Root Directory = finbot и сделайте Redeploy.'
+            : `Адрес приёма сообщений отвечает кодом ${probe.status}. Пришлите этот код разработчику.`
+        );
+      }
+    } catch (error) {
+      rows.push(row(false, 'Адрес приёма сообщений', 'проверить не удалось', true));
+    }
+
+    // 6. Вебхук — главное место, где всё обычно ломается
     if (botUsername) {
       try {
         const info = await bot.telegram.getWebhookInfo();
@@ -208,7 +244,11 @@ export function createApp() {
           const when = info.last_error_date
             ? new Date(info.last_error_date * 1000).toLocaleString('ru-RU')
             : '';
-          rows.push(row(false, 'Последняя ошибка доставки', `${info.last_error_message} (${when})`));
+          rows.push(row(false, 'Последняя ошибка доставки', `${info.last_error_message} (${when})`, true));
+          advice.push(
+            'Если строка «Адрес приёма сообщений» зелёная, эта ошибка уже в прошлом: ' +
+              'нажмите «Подключить бота заново» — это очистит застрявшие сообщения.'
+          );
 
           if (/401|403|authenticat|unauthor/i.test(info.last_error_message)) {
             advice.push(
@@ -225,7 +265,7 @@ export function createApp() {
       }
     }
 
-    // 6. Прочее
+    // 7. Прочее
     rows.push(row(true, 'Режим работы', config.isServerless ? 'облако' : 'локальный компьютер'));
     rows.push(row(true, 'Адрес приложения', base));
 
