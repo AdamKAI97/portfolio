@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "setup": "node setup.mjs",
-    "dev": "node dev.mjs"
+    "dev": "node dev.mjs",
+    "update": "node update.mjs"
   }
 }

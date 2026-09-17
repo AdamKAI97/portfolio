@@ -92,7 +92,7 @@ export async function setupBotProfile() {
     await bot.telegram.setMyCommands(commands);
     if (isHttps(config.bot.webAppUrl)) {
       await bot.telegram.setChatMenuButton({
-        menuButton: { type: 'web_app', text: 'Finance', web_app: { url: config.bot.webAppUrl } }
+        menuButton: { type: 'web_app', text: 'Финансы', web_app: { url: config.bot.webAppUrl } }
       });
     }
   } catch (error) {

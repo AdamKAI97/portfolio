@@ -13,6 +13,7 @@ import path from 'node:path';
 import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { downloadCloudflared } from './tunnel.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const BACKEND = path.join(ROOT, 'backend');
@@ -163,7 +164,14 @@ DEV_TELEGRAM_ID=""
     process.exit(1);
   }
 
-  // --- 4. Проверка бота ---
+  // --- 4. Программа для публичного https-адреса ---
+  step('Готовлю https-адрес для Telegram');
+  const tunnelBinary = await downloadCloudflared((text) => console.log(c.gray(text)));
+  if (tunnelBinary) {
+    ok('Готово — приложение сможет открываться прямо в Telegram');
+  }
+
+  // --- 5. Проверка бота ---
   step('Проверяю токен бота');
   try {
     const response = await fetch(`https://api.telegram.org/bot${token}/getMe`);
@@ -192,6 +200,7 @@ DEV_TELEGRAM_ID=""
   console.log(c.gray('   бот и API   -> http://localhost:4000'));
   console.log(c.gray('   приложение  -> http://localhost:5173'));
   console.log(c.gray('   админка     -> http://localhost:5174\n'));
+  console.log(c.gray('   Публичный адрес для Telegram создастся сам при запуске.\n'));
 }
 
 main().catch((error) => {
