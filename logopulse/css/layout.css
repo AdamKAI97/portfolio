@@ -26,7 +26,7 @@
 .sidebar::after{content:"";position:absolute;top:0;right:-1px;width:1px;height:100%;
   background:linear-gradient(180deg,transparent,var(--c-cyan),var(--c-violet),transparent);opacity:.55}
 
-.sidebar__brand{display:flex;align-items:center;gap:12px;padding:6px 6px 14px;border-bottom:1px solid var(--line);position:relative}
+.sidebar__brand{display:flex;align-items:center;gap:12px;padding:6px 6px 14px;border-bottom:1px solid var(--line)}
 .brand__mark{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:14px;
   background:radial-gradient(circle at 30% 20%,rgba(34,211,238,.28),rgba(168,85,247,.20));
   border:1px solid var(--line-2); box-shadow:0 0 26px -6px rgba(34,211,238,.6), var(--inset)}
@@ -35,8 +35,10 @@
 .brand__text{display:flex;flex-direction:column;line-height:1.2;min-width:0}
 .brand__text b{font-family:var(--ff-d);font-size:17px;font-weight:600;letter-spacing:-.01em}
 .brand__text span{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--txt-3)}
-.sidebar__collapse{position:absolute;right:0;top:10px;width:26px;height:26px;border-radius:8px;color:var(--txt-3);
-  border:1px solid var(--line);display:grid;place-items:center;transition:.2s}
+/* сидит на границе меню, а не в строке с логотипом — не зависит от того,
+   свёрнут текст «ЛогоПульс» или виден, и никогда не наезжает на значок */
+.sidebar__collapse{position:absolute;top:15px;right:-13px;z-index:6;width:26px;height:26px;border-radius:8px;color:var(--txt-3);
+  border:1px solid var(--line);background:var(--panel-2);display:grid;place-items:center;transition:.2s}
 .sidebar__collapse svg{width:16px;height:16px}
 .sidebar__collapse:hover{color:var(--c-cyan);border-color:var(--line-2);background:var(--panel-2)}
 .app.is-collapsed .sidebar__collapse svg{transform:rotate(180deg)}
