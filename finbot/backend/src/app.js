@@ -48,6 +48,27 @@ export function createApp() {
 
   const app = express();
 
+  /**
+   * Восстанавливает настоящий путь запроса.
+   * Хостинг может доводить вложенные адреса до функции в виде /api?__path=bot/xxx —
+   * здесь это разворачивается обратно в /api/bot/xxx, чтобы маршруты работали
+   * одинаково и в облаке, и на компьютере.
+   */
+  app.use((req, res, next) => {
+    try {
+      const url = new URL(req.url, 'http://internal');
+      const forwarded = url.searchParams.get('__path');
+
+      if (forwarded) {
+        url.searchParams.delete('__path');
+        req.url = `/api/${forwarded.replace(/^\/+/, '')}${url.search}`;
+      }
+    } catch (_) {
+      /* адрес нестандартный — оставляем как есть */
+    }
+    next();
+  });
+
   app.use(cors({ origin: true, credentials: true }));
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true }));
