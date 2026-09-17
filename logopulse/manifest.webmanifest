@@ -1,0 +1,15 @@
+{
+  "name": "ЛогоПульс — платформа логопеда",
+  "short_name": "ЛогоПульс",
+  "description": "Приём детей, расписание, занятия, прогресс речи и оплаты — в одном окне.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#05060e",
+  "theme_color": "#05060e",
+  "lang": "ru",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
