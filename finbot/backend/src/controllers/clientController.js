@@ -18,6 +18,23 @@ const num = (value) => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+/**
+ * Возвращает категорию, только если она общая или принадлежит этому пользователю.
+ * Без такой проверки можно было бы подставить чужую личную категорию
+ * и увидеть её название в своих данных.
+ */
+async function pickCategory(userId, categoryId, type) {
+  const id = num(categoryId);
+  if (!id) return null;
+
+  const category = await CategoryModel.findById(id);
+  if (!category) return null;
+  if (category.userId !== null && category.userId !== Number(userId)) return null;
+  if (type && category.type !== type) return null;
+
+  return category;
+}
+
 const rangeFor = (user, query) => {
   if (query.from && query.to) {
     return { from: new Date(query.from), to: new Date(query.to) };
@@ -145,7 +162,9 @@ export async function createTransaction(req, res) {
 
   if (!amount || amount <= 0) return res.status(400).json({ error: 'invalid_amount' });
 
-  let categoryId = num(req.body.categoryId);
+  const chosen = await pickCategory(user.id, req.body.categoryId, type);
+  let categoryId = chosen?.id || null;
+
   if (!categoryId) {
     const fallback = await CategoryModel.fallback(user.id, type);
     categoryId = fallback?.id || null;
@@ -195,9 +214,14 @@ export async function updateTransaction(req, res) {
   const data = {};
   if (req.body.amount !== undefined) data.amount = Math.round(Number(req.body.amount));
   if (req.body.note !== undefined) data.note = req.body.note;
-  if (req.body.categoryId !== undefined) data.categoryId = Number(req.body.categoryId);
   if (req.body.date !== undefined) data.date = new Date(req.body.date);
   if (req.body.type !== undefined) data.type = req.body.type === 'INCOME' ? 'INCOME' : 'EXPENSE';
+
+  if (req.body.categoryId !== undefined) {
+    const category = await pickCategory(req.user.id, req.body.categoryId, data.type || transaction.type);
+    if (!category) return res.status(400).json({ error: 'invalid_category' });
+    data.categoryId = category.id;
+  }
 
   const updated = await TransactionModel.update(transaction.id, data);
   res.json({ transaction: updated });
@@ -295,12 +319,12 @@ export async function listBudgets(req, res) {
 
 export async function upsertBudget(req, res) {
   const month = req.body.month || D.currentMonthKey(req.user.timezone);
-  const categoryId = num(req.body.categoryId);
   const amount = num(req.body.amount);
+  const category = await pickCategory(req.user.id, req.body.categoryId, 'EXPENSE');
 
-  if (!categoryId || !amount) return res.status(400).json({ error: 'invalid_budget' });
+  if (!category || !amount) return res.status(400).json({ error: 'invalid_budget' });
 
-  const budget = await BudgetModel.upsert(req.user.id, categoryId, month, Math.round(amount));
+  const budget = await BudgetModel.upsert(req.user.id, category.id, month, Math.round(amount));
   res.json({ budget });
 }
 
@@ -368,13 +392,16 @@ export async function createRecurring(req, res) {
 
   if (!req.body.title || !amount) return res.status(400).json({ error: 'invalid_recurring' });
 
+  const type = req.body.type === 'INCOME' ? 'INCOME' : 'EXPENSE';
+  const category = await pickCategory(req.user.id, req.body.categoryId, type);
+
   const item = await RecurringModel.create({
     userId: req.user.id,
     title: String(req.body.title).slice(0, 60),
     amount: Math.round(amount),
     dayOfMonth,
-    type: req.body.type === 'INCOME' ? 'INCOME' : 'EXPENSE',
-    categoryId: num(req.body.categoryId) || null
+    type,
+    categoryId: category?.id || null
   });
 
   res.status(201).json({ recurring: item });
