@@ -1,0 +1,31 @@
+{
+  "name": "finbot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Личный финансовый бот: Telegram Mini App, админ-панель и API",
+  "type": "module",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "dev": "node dev.mjs",
+    "update": "node update.mjs",
+    "postinstall": "prisma generate --schema backend/prisma/schema.prisma",
+    "build": "npm --prefix miniapp install --no-audit --no-fund && npm --prefix miniapp run build && npm --prefix admin install --no-audit --no-fund && npm --prefix admin run build",
+    "db:push": "prisma db push --schema backend/prisma/schema.prisma",
+    "db:seed": "node backend/prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0",
+    "cors": "2.8.5",
+    "dayjs": "1.11.13",
+    "dotenv": "16.4.7",
+    "express": "4.21.2",
+    "node-cron": "3.0.3",
+    "telegraf": "4.16.3"
+  },
+  "devDependencies": {
+    "prisma": "5.22.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
