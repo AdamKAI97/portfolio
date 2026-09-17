@@ -7,8 +7,6 @@ export function initTelegram() {
   try {
     tg.ready();
     tg.expand();
-    tg.setHeaderColor('#ffffff');
-    tg.setBackgroundColor('#ffffff');
     if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
   } catch (_) {
     /* старая версия клиента — не критично */

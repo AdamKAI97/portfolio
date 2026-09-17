@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useApp } from './lib/store.jsx';
 import BottomNav from './components/BottomNav.jsx';
-import AddTransactionSheet from './components/AddTransactionSheet.jsx';
+import AddSheet from './components/AddSheet.jsx';
 import Onboarding from './screens/Onboarding.jsx';
 import Home from './screens/Home.jsx';
 import Stats from './screens/Stats.jsx';
-import Goals from './screens/Goals.jsx';
+import Plan from './screens/Plan.jsx';
 import Profile from './screens/Profile.jsx';
 import { Loader } from './components/Ui.jsx';
 
@@ -14,54 +14,51 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [adding, setAdding] = useState(false);
   const [preset, setPreset] = useState(null);
+  const [editing, setEditing] = useState(null);
 
-  if (status === 'loading') return <Loader text="…" />;
+  if (status === 'loading') return <Loader />;
 
   if (status === 'error') {
     return (
       <div className="loader">
         <div style={{ textAlign: 'center' }}>
-          <p style={{ marginBottom: 12 }}>⚠️ {t('common.error')}</p>
-          <button className="btn" onClick={reload}>{t('common.retry')}</button>
+          <p style={{ marginBottom: 14 }}>⚠️ {t('common.error')}</p>
+          <button className="btn btn--primary" onClick={reload}>{t('common.retry')}</button>
         </div>
       </div>
     );
   }
 
-  if (!user?.onboarded) {
-    return <Onboarding onFinish={() => setTab('home')} />;
-  }
+  if (!user?.onboarded) return <Onboarding onFinish={() => setTab('home')} />;
 
-  const openAdd = (presetValue = null) => {
-    setPreset(presetValue);
+  const openAdd = () => {
+    setPreset(null);
+    setEditing(null);
     setAdding(true);
   };
 
-  const repeat = (transaction) =>
-    openAdd({
-      type: transaction.type,
-      amount: transaction.amount,
-      categoryId: transaction.categoryId,
-      note: transaction.note || ''
-    });
+  const openEdit = (transaction) => {
+    setPreset(null);
+    setEditing(transaction);
+    setAdding(true);
+  };
+
+  const closeSheet = () => {
+    setAdding(false);
+    setPreset(null);
+    setEditing(null);
+  };
 
   return (
     <div className="app">
-      {tab === 'home' && <Home onAdd={() => openAdd()} onOpenStats={() => setTab('stats')} onRepeat={repeat} />}
-      {tab === 'stats' && <Stats onRepeat={repeat} />}
-      {tab === 'goals' && <Goals />}
-      {tab === 'profile' && <Profile onRepeat={repeat} />}
+      {tab === 'home' && <Home onAdd={openAdd} onOpenStats={() => setTab('stats')} onSelect={openEdit} />}
+      {tab === 'stats' && <Stats onSelect={openEdit} />}
+      {tab === 'plan' && <Plan />}
+      {tab === 'profile' && <Profile onSelect={openEdit} />}
 
-      <BottomNav active={tab} onChange={setTab} onAdd={() => openAdd()} />
+      <BottomNav active={tab} onChange={setTab} onAdd={openAdd} />
 
-      <AddTransactionSheet
-        open={adding}
-        preset={preset}
-        onClose={() => {
-          setAdding(false);
-          setPreset(null);
-        }}
-      />
+      <AddSheet open={adding} preset={preset} transaction={editing} onClose={closeSheet} />
     </div>
   );
 }

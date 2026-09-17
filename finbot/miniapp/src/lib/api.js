@@ -56,6 +56,13 @@ export const api = {
   setBudget: (data) => request('/budgets', { method: 'PUT', body: data }),
   deleteBudget: (id) => request(`/budgets/${id}`, { method: 'DELETE' }),
 
+  allowance: () => request('/allowance'),
+
+  recurring: () => request('/recurring'),
+  createRecurring: (data) => request('/recurring', { method: 'POST', body: data }),
+  updateRecurring: (id, data) => request(`/recurring/${id}`, { method: 'PUT', body: data }),
+  deleteRecurring: (id) => request(`/recurring/${id}`, { method: 'DELETE' }),
+
   debts: () => request('/debts'),
   createDebt: (data) => request('/debts', { method: 'POST', body: data }),
   settleDebt: (id) => request(`/debts/${id}/settle`, { method: 'POST' }),

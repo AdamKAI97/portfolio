@@ -1,187 +1,119 @@
 export const DICT = {
   ru: {
     common: {
-      cancel: 'Отмена', save: 'Сохранить', add: 'Добавить', delete: 'Удалить', back: 'Назад',
-      all: 'Все', loading: 'Загружаю…', error: 'Ошибка загрузки', yes: 'Да', no: 'Нет',
-      expense: 'Расход', income: 'Доход', month: 'Месяц', today: 'Сегодня', retry: 'Повторить'
+      cancel: 'Отмена', save: 'Сохранить', add: 'Добавить', delete: 'Удалить', edit: 'Изменить',
+      back: 'Назад', all: 'Все', loading: 'Загружаю…', error: 'Не удалось загрузить', retry: 'Повторить',
+      expense: 'Расход', income: 'Доход', today: 'Сегодня', yesterday: 'Вчера', saved: 'Сохранено',
+      month: 'месяц', day: 'день', of: 'из', left: 'осталось', done: 'Готово'
     },
     onboarding: {
       langTitle: 'Выберите язык',
       slides: [
-        { emoji: '💸', title: 'Деньги утекают незаметно?', text: 'Записывайте доходы и расходы за 5 секунд — и сразу видно, куда всё уходит.' },
-        { emoji: '⚡️', title: 'Как это работает', text: 'Пишете сумму боту или в приложении → я раскладываю по категориям → показываю отчёт.' },
-        { emoji: '🎯', title: 'Копите на цель', text: 'Ставьте цель, следите за прогрессом и получайте советы, где сэкономить.' }
+        { emoji: '💸', title: 'Деньги под контролем', text: 'Записывайте доходы и расходы за пять секунд — и сразу видно, куда всё уходит.' },
+        { emoji: '🧠', title: 'Считаю за вас', text: 'Покажу, сколько можно тратить сегодня, чтобы дожить до зарплаты и ещё отложить.' },
+        { emoji: '🎯', title: 'Копите на цель', text: 'Ставьте цели, следите за прогрессом и получайте подсказки, где сэкономить.' }
       ],
-      start: 'Начать',
-      next: 'Далее'
+      start: 'Начать', next: 'Далее'
     },
-    nav: { home: 'Главная', stats: 'Статистика', goals: 'Цели', profile: 'Профиль' },
+    nav: { home: 'Главная', stats: 'Отчёты', plan: 'План', profile: 'Профиль' },
     home: {
-      hello: 'Привет',
-      subtitle: 'Держим бюджет под контролем',
-      balance: 'Баланс месяца',
-      income: 'Доходы',
-      expense: 'Расходы',
-      cta: 'Новая операция',
-      ctaHint: 'Запишите трату или доход за 5 секунд',
-      recent: 'Последние операции',
-      empty: 'Пока нет ни одной операции',
-      forecast: 'Прогноз на месяц',
-      streak: 'дней подряд',
-      seeAll: 'Все операции'
+      hello: 'Привет', canSpend: 'Можно потратить сегодня', spentToday: 'Сегодня',
+      perDay: 'в день до конца месяца', daysLeft: 'дн. до конца месяца',
+      income: 'Доходы', expense: 'Расходы', balance: 'Остаток месяца',
+      quickAdd: 'Быстрая запись', recent: 'Последние операции', seeAll: 'Все',
+      empty: 'Пока ни одной операции. Нажмите ➕ и запишите первую.',
+      overspent: 'Перерасход сегодня', streak: 'дн.', noPlan: 'Укажите план дохода в профиле — посчитаю дневной лимит'
     },
     add: {
-      title: 'Новая операция',
-      amount: 'Сумма',
-      category: 'Категория',
-      note: 'Комментарий (необязательно)',
-      submitExpense: 'Записать расход',
-      submitIncome: 'Записать доход',
-      saved: 'Записано!'
+      title: 'Новая операция', editTitle: 'Операция', amount: 'Сумма', category: 'Категория',
+      note: 'Комментарий', submitExpense: 'Записать расход', submitIncome: 'Записать доход',
+      saved: 'Записано', deleted: 'Удалено', presets: 'Часто'
     },
     stats: {
-      title: 'Статистика',
-      byCategory: 'Куда ушли деньги',
-      trend: 'Доходы и расходы по месяцам',
-      history: 'История',
-      empty: 'Нет данных за этот период',
-      avgDay: 'В среднем в день',
-      noSpend: 'Дней без трат',
-      forecast: 'Прогноз месяца',
-      health: 'Финансовое здоровье',
-      filterAll: 'Все категории'
+      title: 'Отчёты', byCategory: 'Куда ушли деньги', trend: 'Доходы и расходы по месяцам',
+      history: 'История', empty: 'За этот период записей нет', avgDay: 'В среднем в день',
+      noSpend: 'Дней без трат', forecast: 'Прогноз месяца', saved: 'Отложено', filterAll: 'Все'
     },
-    goals: {
-      title: 'Цели и бюджеты',
-      goals: 'Цели',
-      empty: 'Целей пока нет. Добавьте первую — копить станет интереснее.',
-      add: 'Новая цель',
-      name: 'Название цели',
-      target: 'Сколько нужно',
-      create: 'Создать цель',
-      deposit: 'Пополнить',
-      depositAmount: 'Сумма пополнения',
-      of: 'из',
-      left: 'осталось',
-      done: 'Цель достигнута',
-      roundUp: 'Округлять сдачу в копилку',
-      roundUpHint: 'При каждой трате разница до 1000 сум уйдёт в первую цель',
-      budgets: 'Бюджеты по категориям',
+    plan: {
+      title: 'План', goals: 'Цели', budgets: 'Бюджеты', subs: 'Подписки', debts: 'Долги',
+      goalsEmpty: 'Целей пока нет. Добавьте первую — копить станет интереснее.',
+      addGoal: 'Новая цель', goalName: 'На что копим', goalTarget: 'Сколько нужно',
+      deposit: 'Пополнить', depositAmount: 'Сумма пополнения', reached: 'Цель достигнута',
+      monthsLeft: 'мес. при текущем темпе',
       budgetsEmpty: 'Лимитов нет. Поставьте лимит — предупрежу, когда подойдёте к границе.',
-      setLimit: 'Поставить лимит',
-      limit: 'Лимит',
-      spent: 'Потрачено',
-      over: 'Превышен'
+      addBudget: 'Поставить лимит', limit: 'Лимит', spent: 'Потрачено', over: 'Превышен',
+      subsEmpty: 'Подписок нет. Добавьте аренду, интернет или Netflix — напомню заранее.',
+      addSub: 'Новая подписка', subName: 'Название', subDay: 'Число месяца', subTotal: 'Всего в месяц',
+      subDayShort: 'числа', pause: 'Пауза', resume: 'Включить',
+      debtsEmpty: 'Долгов нет. Отлично!', addDebt: 'Добавить долг', debtPerson: 'Имя человека',
+      iOwe: 'Я должен', theyOwe: 'Мне должны', settle: 'Погасить',
+      roundUp: 'Округлять сдачу в копилку', roundUpHint: 'Разница до 1000 при каждой трате уходит в первую цель'
     },
     profile: {
-      title: 'Профиль',
-      language: 'Язык',
-      reminder: 'Ежедневное напоминание',
-      reminderTime: 'Время напоминания',
-      savingsRate: 'Норма сбережений, %',
-      incomePlan: 'План дохода в месяц',
-      export: 'Скачать CSV',
-      achievements: 'Достижения',
-      history: 'Мои операции',
-      streak: 'Серия учёта',
-      best: 'Рекорд',
-      days: 'дн.',
-      saved: 'Сохранено',
-      repeat: 'Повторить операцию',
-      unlocked: 'Открыто'
+      title: 'Профиль', language: 'Язык', theme: 'Тёмная тема', currency: 'Валюта',
+      reminder: 'Ежедневное напоминание', reminderTime: 'Время напоминания',
+      savingsRate: 'Откладывать, % от дохода', incomePlan: 'План дохода в месяц',
+      export: 'Скачать CSV', achievements: 'Достижения', history: 'Все операции',
+      streak: 'Серия', best: 'Рекорд', days: 'дн.', unlocked: 'Открыто'
     }
   },
 
   uz: {
     common: {
-      cancel: 'Bekor qilish', save: 'Saqlash', add: "Qo'shish", delete: "O'chirish", back: 'Orqaga',
-      all: 'Barchasi', loading: 'Yuklanmoqda…', error: 'Yuklashda xatolik', yes: 'Ha', no: "Yo'q",
-      expense: 'Xarajat', income: 'Daromad', month: 'Oy', today: 'Bugun', retry: 'Qayta urinish'
+      cancel: 'Bekor qilish', save: 'Saqlash', add: "Qo'shish", delete: "O'chirish", edit: "O'zgartirish",
+      back: 'Orqaga', all: 'Barchasi', loading: 'Yuklanmoqda…', error: 'Yuklab bo‘lmadi', retry: 'Qayta urinish',
+      expense: 'Xarajat', income: 'Daromad', today: 'Bugun', yesterday: 'Kecha', saved: 'Saqlandi',
+      month: 'oy', day: 'kun', of: 'dan', left: 'qoldi', done: 'Tayyor'
     },
     onboarding: {
       langTitle: 'Tilni tanlang',
       slides: [
-        { emoji: '💸', title: 'Pul sezdirmay ketyaptimi?', text: "Daromad va xarajatlarni 5 soniyada yozing — pul qayerga ketayotgani darhol ko'rinadi." },
-        { emoji: '⚡️', title: 'Bu qanday ishlaydi', text: "Summani botga yoki ilovaga yozasiz → men kategoriyalarga ajrataman → hisobot ko'rsataman." },
+        { emoji: '💸', title: 'Pul nazorat ostida', text: "Daromad va xarajatlarni besh soniyada yozing — pul qayerga ketayotgani darhol ko'rinadi." },
+        { emoji: '🧠', title: 'Men hisoblab beraman', text: "Oylikkacha yetkazib, ustiga jamg'arish uchun bugun qancha sarflash mumkinligini ko'rsataman." },
         { emoji: '🎯', title: "Maqsadga jamg'aring", text: "Maqsad qo'ying, progressni kuzating va qayerda tejash bo'yicha maslahat oling." }
       ],
-      start: 'Boshlash',
-      next: 'Keyingi'
+      start: 'Boshlash', next: 'Keyingi'
     },
-    nav: { home: 'Asosiy', stats: 'Statistika', goals: 'Maqsadlar', profile: 'Profil' },
+    nav: { home: 'Asosiy', stats: 'Hisobot', plan: 'Reja', profile: 'Profil' },
     home: {
-      hello: 'Salom',
-      subtitle: 'Byudjet nazorat ostida',
-      balance: 'Oylik balans',
-      income: 'Daromadlar',
-      expense: 'Xarajatlar',
-      cta: 'Yangi amaliyot',
-      ctaHint: 'Xarajat yoki daromadni 5 soniyada yozing',
-      recent: "So'nggi amaliyotlar",
-      empty: 'Hozircha amaliyotlar yo‘q',
-      forecast: 'Oylik prognoz',
-      streak: 'kun ketma-ket',
-      seeAll: 'Barcha amaliyotlar'
+      hello: 'Salom', canSpend: 'Bugun sarflash mumkin', spentToday: 'Bugun',
+      perDay: 'oy oxirigacha kuniga', daysLeft: 'kun qoldi',
+      income: 'Daromad', expense: 'Xarajat', balance: 'Oylik qoldiq',
+      quickAdd: 'Tezkor yozuv', recent: "So'nggi amaliyotlar", seeAll: 'Hammasi',
+      empty: 'Hozircha amaliyot yo‘q. ➕ tugmasini bosing.',
+      overspent: 'Bugun ortiqcha sarflandi', streak: 'kun', noPlan: 'Profilda daromad rejasini kiriting — kunlik limitni hisoblayman'
     },
     add: {
-      title: 'Yangi amaliyot',
-      amount: 'Summa',
-      category: 'Kategoriya',
-      note: 'Izoh (ixtiyoriy)',
-      submitExpense: 'Xarajatni yozish',
-      submitIncome: 'Daromadni yozish',
-      saved: 'Yozildi!'
+      title: 'Yangi amaliyot', editTitle: 'Amaliyot', amount: 'Summa', category: 'Kategoriya',
+      note: 'Izoh', submitExpense: 'Xarajatni yozish', submitIncome: 'Daromadni yozish',
+      saved: 'Yozildi', deleted: "O'chirildi", presets: 'Tez-tez'
     },
     stats: {
-      title: 'Statistika',
-      byCategory: 'Pul qayerga ketdi',
-      trend: 'Oylar bo‘yicha daromad va xarajat',
-      history: 'Tarix',
-      empty: "Bu davr uchun ma'lumot yo'q",
-      avgDay: "Kuniga o'rtacha",
-      noSpend: 'Xarajatsiz kunlar',
-      forecast: 'Oy prognozi',
-      health: 'Moliyaviy salomatlik',
-      filterAll: 'Barcha kategoriyalar'
+      title: 'Hisobot', byCategory: 'Pul qayerga ketdi', trend: "Oylar bo'yicha daromad va xarajat",
+      history: 'Tarix', empty: "Bu davr uchun yozuv yo'q", avgDay: "Kuniga o'rtacha",
+      noSpend: 'Xarajatsiz kunlar', forecast: 'Oy prognozi', saved: "Jamg'arma", filterAll: 'Barchasi'
     },
-    goals: {
-      title: 'Maqsad va byudjetlar',
-      goals: 'Maqsadlar',
-      empty: "Maqsadlar yo'q. Birinchisini qo'shing — jamg'arish qiziqarli bo'ladi.",
-      add: 'Yangi maqsad',
-      name: 'Maqsad nomi',
-      target: 'Qancha kerak',
-      create: 'Maqsad yaratish',
-      deposit: "To'ldirish",
-      depositAmount: "To'ldirish summasi",
-      of: 'dan',
-      left: 'qoldi',
-      done: 'Maqsadga erishildi',
-      roundUp: "Qoldiqni jamg'armaga yaxlitlash",
-      roundUpHint: "Har bir xarajatda 1000 so'mgacha farq birinchi maqsadga tushadi",
-      budgets: "Kategoriyalar bo'yicha byudjet",
+    plan: {
+      title: 'Reja', goals: 'Maqsadlar', budgets: 'Byudjet', subs: 'Obunalar', debts: 'Qarzlar',
+      goalsEmpty: "Maqsadlar yo'q. Birinchisini qo'shing.",
+      addGoal: 'Yangi maqsad', goalName: 'Nimaga jamg‘aramiz', goalTarget: 'Qancha kerak',
+      deposit: "To'ldirish", depositAmount: "To'ldirish summasi", reached: 'Maqsadga erishildi',
+      monthsLeft: "oy (hozirgi sur'atda)",
       budgetsEmpty: "Limitlar yo'q. Limit qo'ying — chegaraga yaqinlashganda ogohlantiraman.",
-      setLimit: "Limit qo'yish",
-      limit: 'Limit',
-      spent: 'Sarflandi',
-      over: 'Oshib ketdi'
+      addBudget: "Limit qo'yish", limit: 'Limit', spent: 'Sarflandi', over: 'Oshib ketdi',
+      subsEmpty: "Obunalar yo'q. Ijara, internet yoki Netflix qo'shing — oldindan eslataman.",
+      addSub: 'Yangi obuna', subName: 'Nomi', subDay: 'Oyning kuni', subTotal: 'Oyiga jami',
+      subDayShort: '-sana', pause: 'Pauza', resume: 'Yoqish',
+      debtsEmpty: "Qarzlar yo'q. Ajoyib!", addDebt: "Qarz qo'shish", debtPerson: 'Insonning ismi',
+      iOwe: 'Men qarzdorman', theyOwe: 'Menga qarzdor', settle: 'Yopish',
+      roundUp: "Qoldiqni jamg'armaga yaxlitlash", roundUpHint: "Har xarajatda 1000 gacha farq birinchi maqsadga tushadi"
     },
     profile: {
-      title: 'Profil',
-      language: 'Til',
-      reminder: 'Kunlik eslatma',
-      reminderTime: 'Eslatma vaqti',
-      savingsRate: "Jamg'arma normasi, %",
-      incomePlan: 'Oylik daromad rejasi',
-      export: 'CSV yuklab olish',
-      achievements: 'Yutuqlar',
-      history: 'Mening amaliyotlarim',
-      streak: 'Hisob seriyasi',
-      best: 'Rekord',
-      days: 'kun',
-      saved: 'Saqlandi',
-      repeat: 'Amaliyotni takrorlash',
-      unlocked: 'Ochilgan'
+      title: 'Profil', language: 'Til', theme: 'Tungi rejim', currency: 'Valyuta',
+      reminder: 'Kunlik eslatma', reminderTime: 'Eslatma vaqti',
+      savingsRate: "Jamg'arma, daromadning %", incomePlan: 'Oylik daromad rejasi',
+      export: 'CSV yuklab olish', achievements: 'Yutuqlar', history: 'Barcha amaliyotlar',
+      streak: 'Seriya', best: 'Rekord', days: 'kun', unlocked: 'Ochilgan'
     }
   }
 };

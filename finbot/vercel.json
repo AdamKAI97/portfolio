@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "installCommand": "npm install --no-audit --no-fund",
+  "functions": {
+    "api/[[...path]].js": {
+      "maxDuration": 60,
+      "includeFiles": "node_modules/.prisma/client/**"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "0 16 * * *"
+    }
+  ]
+}

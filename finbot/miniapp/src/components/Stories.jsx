@@ -26,7 +26,6 @@ export default function Stories({ stories, onOpen }) {
 export function StoryViewer({ stories, startIndex = 0, onClose }) {
   const [index, setIndex] = useState(startIndex);
   const story = stories[index];
-
   if (!story) return null;
 
   const next = () => (index + 1 < stories.length ? setIndex(index + 1) : onClose());
@@ -45,15 +44,19 @@ export function StoryViewer({ stories, startIndex = 0, onClose }) {
       <div className="viewer__body">
         <span className="viewer__emoji">{story.emoji}</span>
         <h2 className="viewer__title">{story.title}</h2>
-        <p className="viewer__text">{story.text}</p>
         {story.score !== undefined && (
-          <p className="viewer__text mono" style={{ fontSize: 40, fontWeight: 680, color: '#fff' }}>
-            {story.score}<span style={{ fontSize: 18, opacity: .6 }}>/100</span>
-          </p>
+          <div className="viewer__score mono">
+            {story.score}<span style={{ fontSize: 20, opacity: .6 }}>/100</span>
+          </div>
         )}
+        <p className="viewer__text">{story.text}</p>
       </div>
 
-      <button className="btn btn--block" onClick={onClose} style={{ background: 'rgba(255,255,255,.14)', color: '#fff' }}>
+      <button
+        className="btn btn--block"
+        onClick={onClose}
+        style={{ background: 'rgba(255,255,255,.16)', color: '#fff', position: 'relative', zIndex: 2 }}
+      >
         ✕
       </button>
 

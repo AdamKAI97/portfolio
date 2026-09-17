@@ -78,7 +78,8 @@ export async function sendDocument(telegramId, buffer, filename, caption) {
   }
 }
 
-export async function setupBotProfile() {
+export async function setupBotProfile(baseUrl) {
+  const webAppUrl = baseUrl || config.bot.webAppUrl;
   const commands = [
     { command: 'start', description: 'Запустить / Ishga tushirish' },
     { command: 'add', description: 'Записать операцию / Amaliyot yozish' },
@@ -90,9 +91,10 @@ export async function setupBotProfile() {
 
   try {
     await bot.telegram.setMyCommands(commands);
-    if (isHttps(config.bot.webAppUrl)) {
+
+    if (isHttps(webAppUrl)) {
       await bot.telegram.setChatMenuButton({
-        menuButton: { type: 'web_app', text: 'Финансы', web_app: { url: config.bot.webAppUrl } }
+        menuButton: { type: 'web_app', text: 'Финансы', web_app: { url: webAppUrl } }
       });
     }
   } catch (error) {

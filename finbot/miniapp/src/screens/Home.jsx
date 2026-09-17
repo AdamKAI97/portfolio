@@ -1,30 +1,31 @@
 import { useEffect, useState } from 'react';
 import api from '../lib/api.js';
 import { useApp } from '../lib/store.jsx';
+import TopBar from '../components/TopBar.jsx';
 import Stories, { StoryViewer } from '../components/Stories.jsx';
-import TransactionList from '../components/TransactionList.jsx';
+import OperationList from '../components/OperationList.jsx';
 import { todayMonthKey } from '../lib/format.js';
 
-export default function Home({ onAdd, onOpenStats, onRepeat }) {
-  const { t, user, snapshot, money, version } = useApp();
+export default function Home({ onAdd, onOpenStats, onSelect }) {
+  const { t, money, short, snapshot, version } = useApp();
   const [stories, setStories] = useState([]);
   const [recent, setRecent] = useState([]);
-  const [overview, setOverview] = useState(null);
+  const [allowance, setAllowance] = useState(null);
   const [viewer, setViewer] = useState(null);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const [storiesRes, txRes, overviewRes] = await Promise.all([
+        const [storiesRes, txRes, allowanceRes] = await Promise.all([
           api.stories(),
-          api.transactions({ take: 5, month: todayMonthKey() }),
-          api.overview()
+          api.transactions({ take: 6, month: todayMonthKey() }),
+          api.allowance()
         ]);
         if (!alive) return;
         setStories(storiesRes.stories);
         setRecent(txRes.transactions);
-        setOverview(overviewRes);
+        setAllowance(allowanceRes);
       } catch (error) {
         console.error(error);
       }
@@ -34,66 +35,77 @@ export default function Home({ onAdd, onOpenStats, onRepeat }) {
     };
   }, [version]);
 
-  const balance = snapshot.month?.balance ?? 0;
+  const perDay = allowance?.perDay ?? 0;
+  const spentToday = allowance?.spentToday ?? 0;
+  const usedPercent = perDay > 0 ? Math.min(100, Math.round((spentToday / perDay) * 100)) : spentToday > 0 ? 100 : 0;
+  const leftToday = allowance?.leftToday ?? 0;
+  const hasPlan = perDay > 0 || (allowance?.planIncome ?? 0) > 0;
+  const overspent = hasPlan && perDay > 0 && spentToday > perDay;
 
   return (
     <div className="page">
-      <header className="header">
-        <div>
-          <div className="header__hello">{t('home.hello')} 👋</div>
-          <div className="header__name">{user?.firstName}</div>
-        </div>
-        {user?.streakCount > 0 && (
-          <div className="header__badge">🔥 {user.streakCount} {t('home.streak')}</div>
-        )}
-      </header>
+      <TopBar />
 
       <Stories stories={stories} onOpen={(index) => setViewer(index)} />
 
-      <div className="card hero" style={{ marginTop: 14 }}>
-        <div className="hero__label">{t('home.balance')}</div>
-        <div className={`hero__value ${balance < 0 ? 'hero__value--negative' : ''}`}>
-          {balance > 0 ? '+' : ''}{money(balance)}
+      <div className="card card--hero enter" style={{ marginTop: 16 }}>
+        <div className="hero__label">💡 {overspent ? t('home.overspent') : t('home.canSpend')}</div>
+        <div className="hero__value mono">
+          {hasPlan
+            ? overspent
+              ? `−${money(spentToday - perDay)}`
+              : money(leftToday)
+            : money(snapshot.month?.balance || 0)}
         </div>
-        {overview?.isCurrentMonth && (
-          <div className="hero__sub">
-            {t('home.forecast')}: {money(overview.forecast)}
-          </div>
+        <div className="hero__sub">
+          {hasPlan
+            ? `${money(perDay)} ${t('home.perDay')}`
+            : t('home.noPlan')}
+        </div>
+
+        {hasPlan && (
+          <>
+            <div className="hero__bar">
+              <div className={`hero__fill ${overspent ? 'hero__fill--over' : ''}`} style={{ width: `${usedPercent}%` }} />
+            </div>
+            <div className="hero__foot">
+              <span>{t('home.spentToday')} · {short(spentToday)}</span>
+              <span>{allowance?.daysLeft} {t('home.daysLeft')}</span>
+            </div>
+          </>
         )}
+      </div>
 
-        <div className="tiles">
-          <div className="tile">
-            <div className="tile__label">
-              <span className="tile__dot" style={{ background: 'var(--income)' }} />
-              {t('home.income')}
-            </div>
-            <div className="tile__value">{money(snapshot.month?.income || 0)}</div>
+      <div className="bento enter" style={{ marginTop: 12 }}>
+        <div className="tile">
+          <div className="tile__head">
+            <span className="tile__dot" style={{ background: 'var(--income)' }} />
+            {t('home.income')}
           </div>
-          <div className="tile">
-            <div className="tile__label">
-              <span className="tile__dot" style={{ background: 'var(--expense)' }} />
-              {t('home.expense')}
-            </div>
-            <div className="tile__value">{money(snapshot.month?.expense || 0)}</div>
-          </div>
+          <div className="tile__value mono">{short(snapshot.month?.income || 0)}</div>
         </div>
-
-        <button className="btn btn--primary btn--block" style={{ marginTop: 16 }} onClick={onAdd}>
-          ➕ {t('home.cta')}
-        </button>
-        <div className="hero__sub">{t('home.ctaHint')}</div>
+        <div className="tile">
+          <div className="tile__head">
+            <span className="tile__dot" style={{ background: 'var(--expense)' }} />
+            {t('home.expense')}
+          </div>
+          <div className="tile__value mono">{short(snapshot.month?.expense || 0)}</div>
+        </div>
       </div>
 
-      <div className="row-between" style={{ marginTop: 26, marginBottom: 6 }}>
-        <h2 className="section-title" style={{ margin: 0 }}>{t('home.recent')}</h2>
-        <button className="btn-link" onClick={onOpenStats}>{t('home.seeAll')}</button>
+      <button className="btn btn--ghost btn--block enter" style={{ marginTop: 12 }} onClick={onAdd}>
+        + {t('home.quickAdd')}
+      </button>
+
+      <div className="section enter">
+        <div className="row-between" style={{ marginBottom: 12 }}>
+          <h2 className="section__title" style={{ margin: 0 }}>{t('home.recent')}</h2>
+          <button className="section__link" onClick={onOpenStats}>{t('home.seeAll')} →</button>
+        </div>
+        <OperationList transactions={recent} emptyText={t('home.empty')} onSelect={onSelect} />
       </div>
 
-      <TransactionList transactions={recent} emptyText={t('home.empty')} onSelect={onRepeat} />
-
-      {viewer !== null && (
-        <StoryViewer stories={stories} startIndex={viewer} onClose={() => setViewer(null)} />
-      )}
+      {viewer !== null && <StoryViewer stories={stories} startIndex={viewer} onClose={() => setViewer(null)} />}
     </div>
   );
 }

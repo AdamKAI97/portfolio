@@ -1,32 +1,28 @@
 import { useState } from 'react';
 
 const W = 340;
-const H = 170;
+const H = 168;
 const PAD_BOTTOM = 22;
 const PAD_TOP = 8;
 const GAP = 2;
 
-function roundedTopPath(x, y, width, height, radius) {
-  const r = Math.min(radius, width / 2, Math.max(0, height));
+function topRounded(x, y, width, height, radius) {
   if (height <= 0) return '';
+  const r = Math.min(radius, width / 2, height);
   return `M${x},${y + height} L${x},${y + r} Q${x},${y} ${x + r},${y} L${x + width - r},${y} Q${x + width},${y} ${x + width},${y + r} L${x + width},${y + height} Z`;
 }
 
-/**
- * Сгруппированные столбцы: доходы и расходы по месяцам.
- * Две серии -> легенда обязательна, выбранный месяц подписан значениями.
- */
+/** Две серии — поэтому легенда обязательна, а выбранный месяц подписан числами. */
 export default function TrendChart({ data, labels, money }) {
   const [active, setActive] = useState(data.length - 1);
   if (!data?.length) return null;
 
-  const max = Math.max(1, ...data.map((d) => Math.max(d.income, d.expense)));
-  const plotHeight = H - PAD_BOTTOM - PAD_TOP;
-  const groupWidth = W / data.length;
-  const barWidth = Math.min(16, (groupWidth - GAP - 10) / 2);
+  const max = Math.max(1, ...data.map((item) => Math.max(item.income, item.expense)));
+  const plot = H - PAD_BOTTOM - PAD_TOP;
+  const group = W / data.length;
+  const barWidth = Math.min(15, (group - GAP - 10) / 2);
+  const y = (value) => PAD_TOP + plot - (value / max) * plot;
   const selected = data[active];
-
-  const y = (value) => PAD_TOP + plotHeight - (value / max) * plotHeight;
 
   return (
     <div>
@@ -44,10 +40,9 @@ export default function TrendChart({ data, labels, money }) {
       {selected && (
         <div className="row-between" style={{ marginBottom: 8 }}>
           <span className="muted" style={{ fontSize: 12, textTransform: 'capitalize' }}>{selected.label}</span>
-          <span style={{ fontSize: 12 }} className="mono">
+          <span className="mono" style={{ fontSize: 12, fontWeight: 620 }}>
             <span className="text-income">+{money(selected.income)}</span>
-            {'  '}
-            <span className="text-expense">−{money(selected.expense)}</span>
+            <span className="text-expense">{'   '}−{money(selected.expense)}</span>
           </span>
         </div>
       )}
@@ -59,32 +54,30 @@ export default function TrendChart({ data, labels, money }) {
             className="grid-line"
             x1="0"
             x2={W}
-            y1={PAD_TOP + plotHeight * (1 - step)}
-            y2={PAD_TOP + plotHeight * (1 - step)}
+            y1={PAD_TOP + plot * (1 - step)}
+            y2={PAD_TOP + plot * (1 - step)}
           />
         ))}
-        <line className="baseline" x1="0" x2={W} y1={PAD_TOP + plotHeight} y2={PAD_TOP + plotHeight} />
+        <line className="baseline" x1="0" x2={W} y1={PAD_TOP + plot} y2={PAD_TOP + plot} />
 
         {data.map((item, index) => {
-          const center = groupWidth * index + groupWidth / 2;
-          const incomeX = center - barWidth - GAP / 2;
-          const expenseX = center + GAP / 2;
+          const center = group * index + group / 2;
           const isActive = index === active;
 
           return (
             <g key={item.month} onClick={() => setActive(index)} onMouseEnter={() => setActive(index)} style={{ cursor: 'pointer' }}>
-              <rect x={groupWidth * index} y={0} width={groupWidth} height={H} fill="transparent" />
+              <rect x={group * index} y={0} width={group} height={H} fill="transparent" />
               <path
-                d={roundedTopPath(incomeX, y(item.income), barWidth, PAD_TOP + plotHeight - y(item.income), 4)}
+                d={topRounded(center - barWidth - GAP / 2, y(item.income), barWidth, PAD_TOP + plot - y(item.income), 4)}
                 fill="var(--income)"
-                opacity={isActive ? 1 : 0.55}
+                opacity={isActive ? 1 : 0.45}
               />
               <path
-                d={roundedTopPath(expenseX, y(item.expense), barWidth, PAD_TOP + plotHeight - y(item.expense), 4)}
+                d={topRounded(center + GAP / 2, y(item.expense), barWidth, PAD_TOP + plot - y(item.expense), 4)}
                 fill="var(--expense)"
-                opacity={isActive ? 1 : 0.55}
+                opacity={isActive ? 1 : 0.45}
               />
-              <text x={center} y={H - 6} textAnchor="middle" fontWeight={isActive ? 600 : 400}>
+              <text x={center} y={H - 6} textAnchor="middle" fontWeight={isActive ? 650 : 400}>
                 {item.label}
               </text>
             </g>

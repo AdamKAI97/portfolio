@@ -1,41 +1,21 @@
-import express from 'express';
-import cors from 'cors';
 import config, { assertConfig } from './config/default.js';
-import prisma, { connectDatabase, disconnectDatabase } from './database/connection.js';
-import { ensureDefaultCategories } from './database/categories.js';
-import bot, { setupBotProfile } from './core/bot.js';
-import registerBotRoutes from './routes/bot.routes.js';
-import clientRoutes from './routes/client.routes.js';
-import adminRoutes from './routes/admin.routes.js';
-import { errorHandler } from './middlewares/auth.middleware.js';
+import { connectDatabase, disconnectDatabase } from './database/connection.js';
+import bot from './core/bot.js';
+import { createApp, prepare } from './app.js';
+import { setupBotProfile } from './core/bot.js';
 import { startScheduler } from './services/scheduler.service.js';
 
+/**
+ * Локальный запуск: бот на long polling + собственный планировщик.
+ * В облаке используется api/[[...path]].js — там бот работает через webhook.
+ */
 assertConfig();
 
-const app = express();
-
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-app.get('/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
-
-app.use('/api/client', clientRoutes);
-app.use('/api/admin', adminRoutes);
-
-app.use((req, res) => res.status(404).json({ error: 'not_found' }));
-app.use(errorHandler);
+const app = createApp();
 
 async function main() {
   await connectDatabase();
-
-  // Без категорий бот не сможет записать операцию — восстанавливаем, если их нет
-  const seeded = await ensureDefaultCategories(prisma);
-  if (seeded.created) {
-    console.log(`🌱 Категории созданы: ${seeded.expense} расходов, ${seeded.income} доходов`);
-  }
-
-  registerBotRoutes();
+  await prepare();
 
   app.listen(config.port, () => {
     console.log(`🚀 API: http://localhost:${config.port}`);

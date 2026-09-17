@@ -16,7 +16,8 @@ export function shortMoney(value, lang = 'ru') {
     out /= 1000;
     index += 1;
   }
-  const text = out >= 100 || index === 0 ? Math.round(out) : Number(out.toFixed(1));
+  const rounded = out >= 100 || index === 0 ? String(Math.round(out)) : out.toFixed(1).replace('.0', '');
+  const text = lang === 'ru' ? rounded.replace('.', ',') : rounded;
   return `${Number(value) < 0 ? '−' : ''}${text}${units[index]}`;
 }
 
@@ -43,6 +44,43 @@ export function formatTime(value) {
 export function categoryName(category, lang = 'ru') {
   if (!category) return lang === 'uz' ? 'Boshqa' : 'Другое';
   return lang === 'uz' ? category.nameUz : category.nameRu;
+}
+
+const WEEKDAYS = {
+  ru: ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'],
+  uz: ['yakshanba', 'dushanba', 'seshanba', 'chorshanba', 'payshanba', 'juma', 'shanba']
+};
+
+/** «Сегодня», «Вчера» или «15 сент, пятница» */
+export function dayLabel(value, lang = 'ru', labels = {}) {
+  const date = new Date(value);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const same = (a, b) => a.toDateString() === b.toDateString();
+  if (same(date, today)) return labels.today || 'Сегодня';
+  if (same(date, yesterday)) return labels.yesterday || 'Вчера';
+
+  return `${formatDate(value, lang)}, ${WEEKDAYS[lang]?.[date.getDay()] || ''}`;
+}
+
+/** Группирует операции по дням, считая итог каждого дня. */
+export function groupByDay(transactions, lang, labels) {
+  const groups = new Map();
+
+  for (const tx of transactions) {
+    const key = new Date(tx.date).toDateString();
+    if (!groups.has(key)) {
+      groups.set(key, { key, date: tx.date, label: dayLabel(tx.date, lang, labels), items: [], income: 0, expense: 0 });
+    }
+    const group = groups.get(key);
+    group.items.push(tx);
+    if (tx.type === 'INCOME') group.income += tx.amount;
+    else group.expense += tx.amount;
+  }
+
+  return [...groups.values()];
 }
 
 export function todayMonthKey() {

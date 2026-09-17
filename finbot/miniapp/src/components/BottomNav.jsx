@@ -2,10 +2,10 @@ import { useApp } from '../lib/store.jsx';
 import { haptic } from '../lib/telegram.js';
 
 const TABS = [
-  { id: 'home', icon: '🏠', label: 'nav.home' },
-  { id: 'stats', icon: '📊', label: 'nav.stats' },
-  { id: 'goals', icon: '🎯', label: 'nav.goals' },
-  { id: 'profile', icon: '👤', label: 'nav.profile' }
+  { id: 'home', icon: '◎', label: 'nav.home' },
+  { id: 'stats', icon: '◫', label: 'nav.stats' },
+  { id: 'plan', icon: '◈', label: 'nav.plan' },
+  { id: 'profile', icon: '◉', label: 'nav.profile' }
 ];
 
 export default function BottomNav({ active, onChange, onAdd }) {
@@ -16,25 +16,22 @@ export default function BottomNav({ active, onChange, onAdd }) {
     onChange(id);
   };
 
+  const item = (tab) => (
+    <button
+      key={tab.id}
+      className={`nav__item ${active === tab.id ? 'nav__item--active' : ''}`}
+      onClick={() => go(tab.id)}
+    >
+      <span className="nav__icon">{tab.icon}</span>
+      <span>{t(tab.label)}</span>
+    </button>
+  );
+
   return (
     <nav className="nav">
-      {TABS.slice(0, 2).map((tab) => (
-        <button key={tab.id} className={`nav__item ${active === tab.id ? 'nav__item--active' : ''}`} onClick={() => go(tab.id)}>
-          <span className="nav__icon">{tab.icon}</span>
-          <span>{t(tab.label)}</span>
-        </button>
-      ))}
-
-      <button className="nav__item" onClick={() => { haptic('medium'); onAdd(); }} aria-label="+">
-        <span className="nav__fab">+</span>
-      </button>
-
-      {TABS.slice(2).map((tab) => (
-        <button key={tab.id} className={`nav__item ${active === tab.id ? 'nav__item--active' : ''}`} onClick={() => go(tab.id)}>
-          <span className="nav__icon">{tab.icon}</span>
-          <span>{t(tab.label)}</span>
-        </button>
-      ))}
+      {TABS.slice(0, 2).map(item)}
+      <button className="nav__fab" onClick={() => { haptic('medium'); onAdd(); }} aria-label="+">+</button>
+      {TABS.slice(2).map(item)}
     </nav>
   );
 }

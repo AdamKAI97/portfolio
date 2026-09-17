@@ -3,9 +3,11 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import { AppProvider } from './lib/store.jsx';
 import { initTelegram } from './lib/telegram.js';
+import { initTheme } from './lib/theme.js';
 import './styles.css';
 
 initTelegram();
+initTheme();
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

@@ -30,7 +30,7 @@ export default function Onboarding({ onFinish }) {
     return (
       <div className="onboarding">
         <div className="onboarding__body">
-          <span className="onboarding__emoji">🌐</span>
+          <div className="onboarding__art">🌐</div>
           <h1 className="onboarding__title">{dict.langTitle}</h1>
         </div>
         <div className="lang-grid">
@@ -41,9 +41,7 @@ export default function Onboarding({ onFinish }) {
             🇺🇿 O&apos;zbekcha
           </button>
         </div>
-        <button className="btn btn--primary btn--block" onClick={next}>
-          {dict.next}
-        </button>
+        <button className="btn btn--primary btn--block" onClick={next}>{dict.next}</button>
       </div>
     );
   }
@@ -53,10 +51,10 @@ export default function Onboarding({ onFinish }) {
 
   return (
     <div className="onboarding">
-      <div className="onboarding__body">
-        <span className="onboarding__emoji">{slide.emoji}</span>
-        <h1 className="onboarding__title">{slide.title}</h1>
-        <p className="onboarding__text">{slide.text}</p>
+      <div className="onboarding__body" key={step}>
+        <div className="onboarding__art enter">{slide.emoji}</div>
+        <h1 className="onboarding__title enter">{slide.title}</h1>
+        <p className="onboarding__text enter">{slide.text}</p>
       </div>
 
       <div className="onboarding__dots">

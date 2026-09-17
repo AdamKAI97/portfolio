@@ -1,14 +1,27 @@
 import { useEffect } from 'react';
+import { tg } from '../lib/telegram.js';
 
 export default function Sheet({ open, title, onClose, children, footer }) {
   useEffect(() => {
     if (!open) return undefined;
+
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+
+    // Аппаратная кнопка «назад» в Telegram закрывает окно
+    try {
+      tg?.BackButton?.show();
+      tg?.BackButton?.onClick(onClose);
+    } catch (_) { /* старый клиент */ }
+
     return () => {
       document.body.style.overflow = previous;
+      try {
+        tg?.BackButton?.offClick(onClose);
+        tg?.BackButton?.hide();
+      } catch (_) { /* старый клиент */ }
     };
-  }, [open]);
+  }, [open, onClose]);
 
   if (!open) return null;
 

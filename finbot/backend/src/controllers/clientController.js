@@ -4,6 +4,7 @@ import TransactionModel from '../models/Transaction.js';
 import BudgetModel from '../models/Budget.js';
 import GoalModel from '../models/Goal.js';
 import DebtModel from '../models/Debt.js';
+import RecurringModel from '../models/Recurring.js';
 import * as A from '../services/analytics.service.js';
 import * as D from '../services/date.service.js';
 import { buildAdvice, buildStories } from '../services/advice.service.js';
@@ -343,6 +344,113 @@ export async function settleDebt(req, res) {
   res.json({ ok: true });
 }
 
+/* --------------------------- Регулярные платежи --------------------------- */
+
+export async function listRecurring(req, res) {
+  const items = await RecurringModel.list(req.user.id);
+  const day = D.dayOfMonth(req.user.timezone);
+  const monthly = items
+    .filter((item) => item.isActive && item.type === 'EXPENSE')
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  res.json({
+    recurring: items.map((item) => ({
+      ...item,
+      daysLeft: item.dayOfMonth >= day ? item.dayOfMonth - day : null
+    })),
+    monthlyTotal: monthly
+  });
+}
+
+export async function createRecurring(req, res) {
+  const amount = num(req.body.amount);
+  const dayOfMonth = Math.min(28, Math.max(1, Number(req.body.dayOfMonth) || 1));
+
+  if (!req.body.title || !amount) return res.status(400).json({ error: 'invalid_recurring' });
+
+  const item = await RecurringModel.create({
+    userId: req.user.id,
+    title: String(req.body.title).slice(0, 60),
+    amount: Math.round(amount),
+    dayOfMonth,
+    type: req.body.type === 'INCOME' ? 'INCOME' : 'EXPENSE',
+    categoryId: num(req.body.categoryId) || null
+  });
+
+  res.status(201).json({ recurring: item });
+}
+
+export async function updateRecurring(req, res) {
+  const items = await RecurringModel.list(req.user.id);
+  const item = items.find((row) => row.id === Number(req.params.id));
+  if (!item) return res.status(404).json({ error: 'not_found' });
+
+  const data = {};
+  if (req.body.isActive !== undefined) data.isActive = Boolean(req.body.isActive);
+  if (req.body.amount !== undefined) data.amount = Math.round(Number(req.body.amount));
+  if (req.body.title !== undefined) data.title = String(req.body.title).slice(0, 60);
+  if (req.body.dayOfMonth !== undefined) {
+    data.dayOfMonth = Math.min(28, Math.max(1, Number(req.body.dayOfMonth) || 1));
+  }
+
+  res.json({ recurring: await RecurringModel.update(item.id, data) });
+}
+
+export async function removeRecurring(req, res) {
+  const items = await RecurringModel.list(req.user.id);
+  const item = items.find((row) => row.id === Number(req.params.id));
+  if (!item) return res.status(404).json({ error: 'not_found' });
+
+  await RecurringModel.remove(item.id);
+  res.json({ ok: true });
+}
+
+/* ------------------------ Сколько можно потратить ------------------------- */
+
+/**
+ * Дневной лимит: сколько ещё можно тратить каждый день до конца месяца,
+ * чтобы уложиться в доход и отложить запланированную долю.
+ */
+export async function allowance(req, res) {
+  const user = req.user;
+  const tz = user.timezone;
+  const monthKey = D.currentMonthKey(tz);
+  const { from, to } = D.monthRange(tz, monthKey);
+
+  const [totals, today, recurring] = await Promise.all([
+    TransactionModel.totals(user.id, { from, to }),
+    TransactionModel.totals(user.id, D.todayRange(tz)),
+    RecurringModel.list(user.id)
+  ]);
+
+  const daysTotal = D.daysInMonth(tz, monthKey);
+  const daysLeft = Math.max(1, daysTotal - D.dayOfMonth(tz) + 1);
+
+  const planIncome = user.monthlyIncomePlan > 0 ? user.monthlyIncomePlan : totals.income;
+  const savingsTarget = Math.round((planIncome * (user.savingsRate || 0)) / 100);
+
+  // предстоящие регулярные платежи в этом месяце
+  const upcoming = recurring
+    .filter((item) => item.isActive && item.type === 'EXPENSE' && item.dayOfMonth >= D.dayOfMonth(tz))
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  const available = Math.max(0, planIncome - savingsTarget - totals.expense - upcoming);
+  const perDay = Math.floor(available / daysLeft);
+
+  res.json({
+    perDay,
+    available,
+    daysLeft,
+    spentToday: today.expense,
+    leftToday: Math.max(0, perDay - today.expense),
+    planIncome,
+    savingsTarget,
+    upcoming,
+    monthExpense: totals.expense,
+    monthIncome: totals.income
+  });
+}
+
 /* -------------------------------- Экспорт -------------------------------- */
 
 export async function exportCsv(req, res) {
@@ -368,6 +476,11 @@ export async function exportCsv(req, res) {
 }
 
 export default {
+  allowance,
+  listRecurring,
+  createRecurring,
+  updateRecurring,
+  removeRecurring,
   getMe,
   updateMe,
   listCategories,

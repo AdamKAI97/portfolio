@@ -40,6 +40,13 @@ router.get('/debts', wrap(C.listDebts));
 router.post('/debts', wrap(C.createDebt));
 router.post('/debts/:id/settle', wrap(C.settleDebt));
 
+router.get('/recurring', wrap(C.listRecurring));
+router.post('/recurring', wrap(C.createRecurring));
+router.put('/recurring/:id', wrap(C.updateRecurring));
+router.delete('/recurring/:id', wrap(C.removeRecurring));
+
+router.get('/allowance', wrap(C.allowance));
+
 router.get('/export', wrap(C.exportCsv));
 
 export default router;

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import api from './api.js';
 import { makeT } from './i18n.js';
 import { money as fmtMoney, shortMoney as fmtShort } from './format.js';
+import { applyTheme, currentTheme } from './theme.js';
 
 const AppContext = createContext(null);
 
@@ -12,6 +13,7 @@ export function AppProvider({ children }) {
   const [status, setStatus] = useState('loading');
   const [version, setVersion] = useState(0);
   const [toast, setToast] = useState(null);
+  const [theme, setTheme] = useState(currentTheme);
 
   const load = useCallback(async () => {
     try {
@@ -57,6 +59,10 @@ export function AppProvider({ children }) {
     setTimeout(() => setToast(null), 1800);
   }, []);
 
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => applyTheme(prev === 'dark' ? 'light' : 'dark'));
+  }, []);
+
   const lang = user?.language === 'uz' ? 'uz' : 'ru';
 
   const value = useMemo(
@@ -74,10 +80,12 @@ export function AppProvider({ children }) {
       reload: load,
       patchUser,
       showToast,
+      theme,
+      toggleTheme,
       money: (value_) => fmtMoney(value_, user?.currency || 'UZS', lang),
       short: (value_) => fmtShort(value_, lang)
     }),
-    [user, lang, categories, snapshot, status, version, refresh, load, patchUser, showToast]
+    [user, lang, categories, snapshot, status, version, refresh, load, patchUser, showToast, theme, toggleTheme]
   );
 
   return (
