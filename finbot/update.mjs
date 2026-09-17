@@ -46,7 +46,9 @@ function unzip(zipPath, target) {
   const attempts = [
     // Windows 10+ и macOS: встроенный bsdtar понимает zip и UTF-8 имена
     { command: 'tar', args: ['-xf', zipPath, '-C', target] },
-    { command: 'unzip', args: ['-q', '-o', zipPath, '-d', target] }
+    // unzip без UTF-8 локали портит кириллические имена, поэтому задаём её явно
+    { command: 'unzip', args: ['-q', '-o', zipPath, '-d', target], env: { LC_ALL: 'C.UTF-8', LANG: 'C.UTF-8' } },
+    { command: 'unzip', args: ['-q', '-o', zipPath, '-d', target], env: { LC_ALL: 'en_US.UTF-8', LANG: 'en_US.UTF-8' } }
   ];
 
   if (process.platform === 'win32') {
@@ -61,7 +63,10 @@ function unzip(zipPath, target) {
   }
 
   for (const attempt of attempts) {
-    const result = spawnSync(attempt.command, attempt.args, { shell: process.platform === 'win32' });
+    const result = spawnSync(attempt.command, attempt.args, {
+      shell: process.platform === 'win32',
+      env: { ...process.env, ...(attempt.env || {}) }
+    });
     if (result.status !== 0) continue;
 
     const source = findProjectDir(target);
