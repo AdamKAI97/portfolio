@@ -261,6 +261,14 @@ const app = {
       LP.$('#sidebar').classList.remove('is-open');
       LP.$('#scrim').hidden = true;
     });
+    /* пункты меню — обычные <a href="#/…">: сама навигация идёт через hashchange,
+       а закрыть выезжающее меню на телефоне после выбора раздела нужно отдельно —
+       app.go() тут не вызывается, поэтому иначе меню зависает поверх новой страницы */
+    LP.$('#nav').addEventListener('click', e => {
+      if (!e.target.closest('.nav__item')) return;
+      LP.$('#sidebar').classList.remove('is-open');
+      LP.$('#scrim').hidden = true;
+    });
 
     const si = LP.$('#globalSearch');
     si.addEventListener('input', u.debounce(() => app.search(si.value), 160));

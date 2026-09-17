@@ -171,12 +171,17 @@
 .table-wrap{overflow:auto;max-height:var(--tmax,none);border-radius:var(--r-md)}
 
 .list{display:flex;flex-direction:column;gap:9px}
-.tile{display:flex;align-items:center;gap:13px;padding:13px;border-radius:var(--r-md);
+.tile{display:flex;align-items:center;flex-wrap:wrap;gap:8px 13px;padding:13px;border-radius:var(--r-md);
   border:1px solid var(--line);background:var(--panel-2);transition:.24s var(--ease);width:100%;text-align:left}
 .tile:hover{border-color:var(--line-2);transform:translateX(4px);box-shadow:var(--glow-hover)}
 .tile__t{font-weight:700;font-size:14.5px}
 .tile__s{font-size:12.5px;color:var(--txt-2)}
 .tile__end{margin-left:auto;text-align:right;flex:none}
+/* .grow — это flex:1 (flex-basis:0%), поэтому браузер решает, что «места хватит»,
+   и просто сжимает имя+время до предела, а не переносит чип на новую строку.
+   Даём здесь ненулевую базовую ширину — тогда при нехватке места перенесётся чип,
+   а не потеряется читаемость имени */
+.tile > .grow{flex-basis:96px}
 
 /* ───────── Прогресс ───────── */
 .pbar{height:9px;border-radius:99px;background:var(--panel-3);overflow:hidden;border:1px solid var(--line);position:relative}

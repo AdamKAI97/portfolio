@@ -3,7 +3,10 @@
    ═══════════════════════════════════════════════════════════ */
 
 .app{
-  position:relative; z-index:1; min-height:100vh;
+  /* без собственного z-index — иначе .app создаёт свой stacking context,
+     и #scrim (сосед .app, z-index:38) сравнивается не с .sidebar (z:40),
+     а с .app целиком, перекрывая меню на телефоне поверх пунктов навигации */
+  position:relative; min-height:100vh;
   display:grid;
   grid-template-columns:var(--side-w) minmax(0,1fr);
   grid-template-rows:var(--top-h) 1fr auto;
