@@ -37,6 +37,45 @@ function cleanup() {
   fs.rmSync(TMP, { recursive: true, force: true });
 }
 
+/**
+ * Распаковывает zip доступным в системе способом.
+ * Проверяем не только код возврата: некоторые распаковщики портят
+ * кириллические имена файлов, поэтому убеждаемся, что они на месте.
+ */
+function unzip(zipPath, target) {
+  const attempts = [
+    // Windows 10+ и macOS: встроенный bsdtar понимает zip и UTF-8 имена
+    { command: 'tar', args: ['-xf', zipPath, '-C', target] },
+    { command: 'unzip', args: ['-q', '-o', zipPath, '-d', target] }
+  ];
+
+  if (process.platform === 'win32') {
+    attempts.push({
+      command: 'powershell',
+      args: [
+        '-NoProfile',
+        '-Command',
+        `Expand-Archive -Force -LiteralPath '${zipPath}' -DestinationPath '${target}'`
+      ]
+    });
+  }
+
+  for (const attempt of attempts) {
+    const result = spawnSync(attempt.command, attempt.args, { shell: process.platform === 'win32' });
+    if (result.status !== 0) continue;
+
+    const source = findProjectDir(target);
+    if (source && fs.existsSync(path.join(source, '1-НАСТРОЙКА-Windows.bat'))) return true;
+
+    // имена файлов испорчены — пробуем следующий способ
+    for (const entry of fs.readdirSync(target)) {
+      if (entry !== 'update.zip') fs.rmSync(path.join(target, entry), { recursive: true, force: true });
+    }
+  }
+
+  return false;
+}
+
 /** Ищет папку finbot внутри распакованного архива. */
 function findProjectDir(base) {
   const entries = fs.readdirSync(base, { withFileTypes: true }).filter((item) => item.isDirectory());
@@ -65,9 +104,9 @@ async function main() {
   ok('скачано');
 
   step('Распаковываю');
-  const extract = spawnSync('tar', ['-xf', zipPath, '-C', TMP], { shell: process.platform === 'win32' });
-  if (extract.status !== 0) {
-    fail('не удалось распаковать архив');
+  if (!unzip(zipPath, TMP)) {
+    fail('не удалось распаковать архив.');
+    fail('Скачайте свежий ZIP вручную: ' + ARCHIVE);
     cleanup();
     process.exit(1);
   }
