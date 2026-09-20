@@ -139,7 +139,13 @@
 }
 @media (max-width:960px){
   .app{grid-template-columns:0 minmax(0,1fr)}
-  .sidebar{position:fixed;left:0;top:0;width:var(--side-w);transform:translateX(-102%);transition:transform var(--speed) var(--ease)}
+  .sidebar{position:fixed;left:0;top:0;width:var(--side-w);transform:translateX(-102%);transition:transform var(--speed) var(--ease);
+    /* без backdrop-filter — на телефоне это самая частая причина подвисаний:
+       во время выезда меню (transform) браузер на каждом кадре ещё и пересчитывает
+       блюр фона под панелью. Плотность фона поднята, чтобы текст остался читаемым и без блюра */
+    backdrop-filter:none; -webkit-backdrop-filter:none;
+    background:linear-gradient(180deg,rgba(10,13,28,.97),rgba(9,11,25,.96))}
+  [data-theme="light"] .sidebar{background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(240,243,255,.96))}
   .sidebar.is-open{transform:none}
   .app.is-collapsed{grid-template-columns:0 minmax(0,1fr)}
   .app.is-collapsed .brand__text,.app.is-collapsed .nav__label,.app.is-collapsed .nav__group,
@@ -148,7 +154,12 @@
   .sidebar__collapse{display:none}
   .topbar>.topbar__burger{display:grid}
   .view{padding:18px 15px 8px}
-  .topbar{padding:0 14px;gap:10px}
+  .topbar{padding:0 14px;gap:10px;
+    /* топбар «липкий» — во время любого скролла страницы браузер на телефоне непрерывно
+       пересчитывает блюр под ним. Без backdrop-filter скролл идёт заметно плавнее */
+    backdrop-filter:none; -webkit-backdrop-filter:none;
+    background:linear-gradient(180deg,rgba(9,12,28,.97),rgba(9,12,28,.94))}
+  [data-theme="light"] .topbar{background:linear-gradient(180deg,rgba(255,255,255,.97),rgba(255,255,255,.94))}
   .appfoot{padding:14px}
 }
 @media (max-width:760px){

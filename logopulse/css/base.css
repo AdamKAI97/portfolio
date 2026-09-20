@@ -105,8 +105,16 @@ svg{display:block}
 [data-theme="light"] .bg-vignette{background:radial-gradient(ellipse 120% 90% at 50% 40%,transparent 45%,rgba(120,140,200,.18))}
 
 @media (prefers-reduced-motion:reduce){
-  .bg-grid,.bg-aurora{animation:none}
+  .bg-grid,.bg-aurora,.hero::after{animation:none}
   *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+
+/* на телефоне постоянно анимированный filter:blur() на весь экран (сетка + 3 «сияния»)
+   каждый кадр грузит GPU/композитор — на бюджетных Android это ощущается как подвисания
+   даже без каких-либо действий пользователя, просто при взгляде на экран или скролле.
+   Замораживаем анимацию — подложка остаётся статичной картинкой вместо видео */
+@media (max-width:960px){
+  .bg-grid,.bg-aurora{animation:none}
 }
 
 /* ═══ Экран загрузки ═══ */

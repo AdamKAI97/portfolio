@@ -43,6 +43,7 @@
   .hero__clock{margin-left:0;text-align:left;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   .hero__clock b{font-size:27px}
   .hero__pulse{margin-top:0;height:28px}
+  .hero::after{animation:none}
 }
 
 /* ───────── Ученики ───────── */
